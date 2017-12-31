@@ -21,13 +21,13 @@ class Unlockable {
             // has been met
             metConditionFlags |= flag;
             // if all conditions have been met, unlock
-            if (!(listenerFlags ^ metConditionFlags)) {
+            if ((listenerFlags & metConditionFlags) === listenerFlags) {
                unlock();
             }
          } else {
             // remove the flag from the met conditions if the listener
             // condition is not met
-            metConditionFlags ^= flag;
+            metConditionFlags &= ~flag;
          }
       };
 
@@ -59,5 +59,17 @@ class Unlockable {
          Listeners.blockCountListeners.splice(Listeners.blockCountListeners.indexOf(this.blockCountListener), 1);
       if (this.factoryPurchaseListener)
          Listeners.factoryPurchaseListeners.splice(Listeners.factoryPurchaseListeners.indexOf(this.factoryPurchaseListener), 1);
+   }
+}
+
+class Achievement extends Unlockable {
+   constructor() {
+
+   }
+}
+
+class Upgrade extends Unlockable {
+   constructor() {
+      
    }
 }
