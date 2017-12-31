@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 /* global toBrowserH */
 
-const UI_SHADOW = 20;
+const UI_SHADOW = 10;
 const UI_PADDING = 25;
 
 const UI_SANS_TEXT_HEIGHT = 20;
