@@ -70,4 +70,4 @@ const renderSpecialEffects = (delta, ctx2d) => {
       if (firework.isGone())
          fireworkManager.splice(fireworkManager.indexOf(firework), 1);
    });
-}
+};

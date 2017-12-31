@@ -3,18 +3,18 @@
 const LISTENER_BLOCK_COUNT_FLAG = 0x00000001;
 const LISTENER_FACTORY_PURCHASE_FLAG = 0x00000002;
 
-class Unlockable {
-   constructor(bit, name, listenerFlags, onUnlockFunction, conditionFunction) {
-      this.bit = bit;
-      this.name = name;
-      this.unlocked = false;
+class Revealable {
+   constructor(bitId, listenerFlags, onRevealFunction, conditionFunction) {
+      this.bitId = bitId;
+      this.onReveal = onRevealFunction;
+      this.revealed = false;
       let metConditionFlags = 0x0;
 
       // this is a function
       const checkForUnlock = function (flag, ...args) {
          // if we've already unlocked this object then don't
          // check again lol
-         if (this.unlocked)
+         if (this.revealed)
             return;
          if (conditionFunction(flag, args)) {
             // set a condition according to the listener if the condition
@@ -50,26 +50,30 @@ class Unlockable {
       }
    }
 
-   unlock() {
-      onUnlockFunction();
-      this.unlocked = true;
-
+   removeListeners() {
       // remove the listeners so that they're not invoked anymore
       if (this.blockCountListener)
          Listeners.blockCountListeners.splice(Listeners.blockCountListeners.indexOf(this.blockCountListener), 1);
       if (this.factoryPurchaseListener)
          Listeners.factoryPurchaseListeners.splice(Listeners.factoryPurchaseListeners.indexOf(this.factoryPurchaseListener), 1);
    }
-}
 
-class Achievement extends Unlockable {
-   constructor() {
-
+   reveal() {
+      this.onReveal();
+      this.revealed = true;
    }
 }
 
-class Upgrade extends Unlockable {
+class Achievement extends Revealable {
+   constructor(bitId, name, description, listenerFlags, onUnlockFunction, conditionFunction) {
+      super(bitId, listenerFlags, onUnlockFunction, conditionFunction);
+      this.name = name;
+      this.description = description;
+   }
+}
+
+class Upgrade extends Revealable {
    constructor() {
-      
+
    }
 }
