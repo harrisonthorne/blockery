@@ -13,15 +13,15 @@ const renderGame = (delta, gl, programInfo, matrices, ctx2d) => {
       globalYOffset = yStart + quintEaseOut(yInter) * (yEnd - yStart);
    }
    // Main stage
-   if (yInter < 1 || currentStage === Stage.MAIN)
+   if (globalYOffset > -VISIBLE_HEIGHT && globalYOffset < VISIBLE_HEIGHT)
       renderMainStage(delta, gl, programInfo, ctx2d, globalYOffset);
 
    // Render upper stage
-   if (yInter < 1 || currentStage === Stage.UPPER)
+   if (globalYOffset > 0)
       renderUpperStage(currentUpperStageMenu, delta, gl, programInfo, ctx2d, globalYOffset - VISIBLE_HEIGHT);
 
    // Render lower stage
-   if (yInter < 1 || currentStage === Stage.LOWER)
+   if (globalYOffset < 0)
       renderLowerStage(currentLowerStageMenu, delta, gl, programInfo, ctx2d, globalYOffset + VISIBLE_HEIGHT);
 };
 
