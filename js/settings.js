@@ -3,8 +3,8 @@
 let resetButton;
 
 const initSettings = () => {
-   let w = getStatusBarWidth() / 2;
-   let h = getStatusBarHeight() / 2;
+   let w = StatusBar.width / 2;
+   let h = StatusBar.height / 2;
    resetButton = new Button(VISIBLE_WIDTH / 2 - w / 2, VISIBLE_HEIGHT / 2 - h / 2, w, h, COLOR_RED, "Reset everything", function () {
       Data.reset();
    });

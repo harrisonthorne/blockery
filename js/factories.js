@@ -44,12 +44,12 @@ class Factory {
       this.totalPollutionProduced = 0;
       this.totalBlocksProduced = 0;
 
-      this.progressButton = new ProgressButton(getStatusBarX(), 0, getStatusBarWidth(), STORAGE_BUTTON_HEIGHT, COLOR_GREEN, COLOR_DARK_GREEN, '', () => {
+      this.progressButton = new ProgressButton(StatusBar.x, 0, StatusBar.width, STORAGE_BUTTON_HEIGHT, COLOR_GREEN, COLOR_DARK_GREEN, '', () => {
          this.empty();
       });
       this.progressButton.typeface = 'Digital-7';
 
-      this.imageButton = new ImageButton(getStatusBarX(), 0, PURCHASE_BUTTON_SIZE, PURCHASE_BUTTON_SIZE, COLOR_BLUE, "img/unknown.png", () => {
+      this.imageButton = new ImageButton(StatusBar.x, 0, PURCHASE_BUTTON_SIZE, PURCHASE_BUTTON_SIZE, COLOR_BLUE, "img/unknown.png", () => {
          this.buy();
       });
       this.imageButton.disabledColor = COLOR_DISABLED_PURCHASE;
@@ -181,7 +181,7 @@ class Factory {
       // Assign an easier variable for UI_PADDING
       let p = UI_PADDING;
 
-      let statusBarHeight = getStatusBarHeight();
+      let statusBarHeight = StatusBar.height;
       let y = statusBarHeight + (getPageChangerButtonY() - statusBarHeight) / 2 - (Factory.infoCardHeight * FACTORIES_PER_PAGE - UI_PADDING * 2) / 2 + this.index % FACTORIES_PER_PAGE * Factory.infoCardHeight + yOffset;
 
       this.imageButton.enabled = Data.currentBlocks >= this.price && !hidden;
@@ -304,7 +304,7 @@ const PAGE_CHANGER_BUTTON_WIDTH = 150;
 const PAGE_CHANGER_BUTTON_HEIGHT = 50;
 
 const getPageChangerButtonY = () => {
-   return VISIBLE_HEIGHT - getStatusBarHeight() * 1.5 - UI_PADDING - PAGE_CHANGER_BUTTON_HEIGHT;
+   return VISIBLE_HEIGHT - StatusBar.height * 1.5 - UI_PADDING - PAGE_CHANGER_BUTTON_HEIGHT;
 };
 
 const getMaxPage = () => {
@@ -334,9 +334,9 @@ const renderFactoryMenu = (delta, gl, programInfo, ctx2d, yOffset) => {
 const renderFactoryMenuScoreboard = (gl, programInfo, ctx2d, yOffset) => {
    // Render the block
    CubeMesh.setColor(COLOR_BLUE, gl, programInfo);
-   let h = getStatusBarHeight();
-   let w = getStatusBarWidth();
-   let x = getStatusBarX();
+   let h = StatusBar.height;
+   let w = StatusBar.width;
+   let x = StatusBar.x;
    let y = VISIBLE_HEIGHT - h * 1.5 + yOffset;
    CubeMesh.render(gl, x, y, 0, w, h, Board.BLOCK_WIDTH);
 
@@ -373,7 +373,7 @@ const renderFactoryMenuScoreboard = (gl, programInfo, ctx2d, yOffset) => {
 
 const checkPageButtons = () => {
    if (!nextPageButton) {
-      nextPageButton = new Button(getStatusBarX() + getStatusBarWidth() - PAGE_CHANGER_BUTTON_HEIGHT, getPageChangerButtonY(), PAGE_CHANGER_BUTTON_HEIGHT, PAGE_CHANGER_BUTTON_HEIGHT, COLOR_ORANGE, "keyboard_arrow_right", function () {
+      nextPageButton = new Button(StatusBar.x + StatusBar.width - PAGE_CHANGER_BUTTON_HEIGHT, getPageChangerButtonY(), PAGE_CHANGER_BUTTON_HEIGHT, PAGE_CHANGER_BUTTON_HEIGHT, COLOR_ORANGE, "keyboard_arrow_right", function () {
          if (currentFactoryPage < getMaxPage())
             currentFactoryPage++;
          checkPageButtons();
@@ -383,7 +383,7 @@ const checkPageButtons = () => {
    }
 
    if (!previousPageButton) {
-      previousPageButton = new Button(getStatusBarX(), getPageChangerButtonY(), PAGE_CHANGER_BUTTON_HEIGHT, PAGE_CHANGER_BUTTON_HEIGHT, COLOR_ORANGE, "keyboard_arrow_left", function () {
+      previousPageButton = new Button(StatusBar.x, getPageChangerButtonY(), PAGE_CHANGER_BUTTON_HEIGHT, PAGE_CHANGER_BUTTON_HEIGHT, COLOR_ORANGE, "keyboard_arrow_left", function () {
          if (currentFactoryPage > 0)
             currentFactoryPage--;
          checkPageButtons();

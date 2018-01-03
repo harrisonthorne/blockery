@@ -24,12 +24,34 @@ const removeShadow = (ctx) => {
    ctx.shadowOffsetY = 0;
 };
 
-const Theme = {
+const DefaultTheme = {
+   background: [0.9, 0.9, 0.9],
+   daytimeDependent: false,
+   settings: {
+      background: [0.1, 0.1, 0.2]
+   }
+};
+
+const DaylightTheme = {
    background: {
-      r: 0.9,
-      g: 0.9,
-      b: 0.9
+      morning: {
+         zenith: [],
+         horizon: []
+      },
+      afternoon: {
+         zenith: [],
+         horizon: []
+      },
+      evening: {
+         zenith: [],
+         horizon: []
+      },
+      night: {
+         zenith: [0, 0, 0],
+         horizon: [0, 0, 0.1]
+      },
    },
+   daytimeDependent: true,
    settings: {
       background: {
          r: 0.1,
@@ -38,3 +60,5 @@ const Theme = {
       }
    }
 };
+
+let Theme = DefaultTheme;

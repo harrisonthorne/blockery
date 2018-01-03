@@ -1,5 +1,43 @@
 /* jshint esversion: 6, browser: true, devel: true */
 
+let factoriesButton;
+let statsButton;
+let settingsButton;
+let upgradesButton;
+let achievementsButton;
+const initGame = () => {
+   let x = StatusBar.x;
+   let y = 0;
+   let w = StatusBar.width;
+   let h = StatusBar.height;
+
+   // Status bar buttons
+   factoriesButton = new Button(x, y, w, h / 2, COLOR_ORANGE, 'Factories', function () {
+      openUpperStage(StageMenu.FACTORIES);
+   });
+   statsButton = new Button(x, y + h / 2, w - h / 2, h / 2, COLOR_BLUE, 'Stats', function () {
+      openUpperStage(StageMenu.STATS);
+   });
+   settingsButton = new Button(x + w - h / 2, y + h / 2, h / 2, h / 2, COLOR_GREEN, 'settings', function () {
+      openLowerStage(StageMenu.SETTINGS);
+   });
+   settingsButton.typeface = "Material Icons";
+   settingsButton.fontSize = 36;
+
+   // Return buttons
+   upperStageBackButton = new Button(x, VISIBLE_HEIGHT - h / 2, w, h / 2, COLOR_RED, 'keyboard_arrow_down', function () {
+      goBackToBoard();
+   });
+   upperStageBackButton.typeface = "Material Icons";
+   upperStageBackButton.fontSize = 36;
+
+   lowerStageBackButton = new Button(x, 0, w, h / 2, COLOR_RED, 'keyboard_arrow_up', function () {
+      goBackToBoard();
+   });
+   lowerStageBackButton.typeface = "Material Icons";
+   lowerStageBackButton.fontSize = 36;
+};
+
 const gameLogic = (delta) => {
    factoriesLogic(delta);
    Board.logic(delta);
@@ -36,7 +74,7 @@ const renderUpperStage = (stageMenu, delta, gl, programInfo, ctx2d, yOffset) => 
    ctx2d.fillStyle = 'black';
    ctx2d.textBaseline = 'middle';
    ctx2d.textBaseline = 'center';
-   ctx2d.fillText(stageMenu, toBrowserX(getStatusBarX() + getStatusBarWidth() / 2), toBrowserY(getStatusBarHeight() / 2 + yOffset));
+   ctx2d.fillText(stageMenu, toBrowserX(StatusBar.x + StatusBar.width / 2), toBrowserY(StatusBar.height / 2 + yOffset));
    switch (stageMenu) {
       case StageMenu.FACTORIES:
          renderFactoryMenu(delta, gl, programInfo, ctx2d, yOffset);
@@ -109,16 +147,22 @@ const renderScoreboard = (delta, gl, programInfo, ctx2d, yOffset) => {
    ctx2d.fillText(amountText, blocksTextX - blocksTextWidth, textY);
 };
 
-const getStatusBarX = () => {
-   return VISIBLE_WIDTH / 2 - getStatusBarWidth() / 2;
-};
-
-const getStatusBarWidth = () => {
-   return Board.width + Board.FRAME_THICKNESS * 2 + Board.GRID_PADDING * 2;
-};
-
-const getStatusBarHeight = () => {
-   return Board.boardCenter.y - Board.height / 2 - Board.FRAME_THICKNESS * 3;
+const StatusBar = {
+   get x() {
+      if (!this._x) this._x = VISIBLE_WIDTH / 2 - this.width / 2;
+      return this._x;
+   },
+   get width() {
+      if (!this._width) this._width = Board.width + Board.FRAME_THICKNESS * 2 + Board.GRID_PADDING * 2;
+      return this._width;
+   },
+   get height() {
+      if (!this._height) this._height = Board.boardCenter.y - Board.height / 2 - Board.FRAME_THICKNESS * 3;
+      return this._height;
+   },
+   get y() {
+      return 0;
+   }
 };
 
 let globalYOffset = 0;
@@ -171,40 +215,8 @@ let yEnd = 0;
 let yInter = 1;
 let yOffsetAnimateDuration = 0.5;
 
-const initGame = () => {
-   let x = getStatusBarX();
-   let y = 0;
-   let w = getStatusBarWidth();
-   let h = getStatusBarHeight();
 
-   factoriesButton = new Button(x, y, w, h / 2, COLOR_ORANGE, 'Factories', function () {
-      openUpperStage(StageMenu.FACTORIES);
-   });
-   statsButton = new Button(x, y + h / 2, w - h / 2, h / 2, COLOR_BLUE, 'Stats', function () {
-      openUpperStage(StageMenu.STATS);
-   });
-   settingsButton = new Button(x + w - h / 2, y + h / 2, h / 2, h / 2, COLOR_GREEN, 'settings', function () {
-      openLowerStage(StageMenu.SETTINGS);
-   });
-   settingsButton.typeface = "Material Icons";
-   settingsButton.fontSize = 36;
 
-   upperStageBackButton = new Button(x, VISIBLE_HEIGHT - h / 2, w, h / 2, COLOR_RED, 'keyboard_arrow_down', function () {
-      goBackToBoard();
-   });
-   upperStageBackButton.typeface = "Material Icons";
-   upperStageBackButton.fontSize = 36;
-
-   lowerStageBackButton = new Button(x, 0, w, h / 2, COLOR_RED, 'keyboard_arrow_up', function () {
-      goBackToBoard();
-   });
-   lowerStageBackButton.typeface = "Material Icons";
-   lowerStageBackButton.fontSize = 36;
-};
-
-let factoriesButton;
-let statsButton;
-let settingsButton;
 const renderStatusBar = (delta, gl, programInfo, ctx2d, yOffset) => {
    factoriesButton.render(delta, gl, programInfo, ctx2d, yOffset);
    statsButton.render(delta, gl, programInfo, ctx2d, yOffset);

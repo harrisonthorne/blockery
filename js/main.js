@@ -154,9 +154,9 @@ const render = (delta, gl, matrices, programInfo, buffers, canvas2d, ctx2d) => {
 
    let bgInter = Math.max(0, Math.min(1, globalYOffset / -VISIBLE_HEIGHT));
 
-   let bgR = Theme.background.r * (1 - bgInter) + Theme.settings.background.r * bgInter;
-   let bgG = Theme.background.g * (1 - bgInter) + Theme.settings.background.g * bgInter;
-   let bgB = Theme.background.b * (1 - bgInter) + Theme.settings.background.b * bgInter;
+   let bgR = Theme.background[0] * (1 - bgInter) + Theme.settings.background[0] * bgInter;
+   let bgG = Theme.background[1] * (1 - bgInter) + Theme.settings.background[1] * bgInter;
+   let bgB = Theme.background[2] * (1 - bgInter) + Theme.settings.background[2] * bgInter;
 
 
    gl.clearColor(bgR, bgG, bgB, 1);
