@@ -2,6 +2,7 @@
 
 const COLOR_DISABLED_PURCHASE = 0x002caf;
 const COLOR_DARK_GREEN = 0x009c3c;
+const COLOR_DARK_ORANGE = 0xaf5500;
 
 let globalBlockRateMultiplier = 1,
    globalPollutionMultiplier = 1,
@@ -45,7 +46,7 @@ class Factory {
       this.totalBlocksProduced = 0;
 
       this.progressButton = new ProgressButton(StatusBar.x, 0, StatusBar.width, STORAGE_BUTTON_HEIGHT, COLOR_GREEN, COLOR_DARK_GREEN, '', () => {
-         this.empty();
+         this.queueForEmptying();
       });
       this.progressButton.typeface = 'Digital-7';
 
@@ -61,8 +62,13 @@ class Factory {
       this.produceBlocks(delta);
    }
 
+   queueForEmptying() {
+      this.queued = true;
+   }
+
    empty() {
       this.emptying = true;
+      this.queued = false;
    }
 
    emptyImmediately() {
@@ -70,19 +76,20 @@ class Factory {
       Data.currentBlocks += emptiedBlocks;
       this.blocksHeld -= emptiedBlocks;
       this.emptying = false;
+      this.queued = false;
    }
 
    produceBlocks(delta) {
       if (this.emptying) {
 
-         let emptiedBlocks = this.totalEmptyRate * delta;
+         let emptiedBlocks = Factory.EMPTY_RATE * delta;
 
          if (emptiedBlocks > this.blocksHeld) {
             // If we have emptied more blocks than this factory is holding,
             // set delta to the amount of time put into emptying nonexistent
             // blocks so that it can be used after this if statement to produce
             // blocks
-            delta = (emptiedBlocks - Math.floor(this.blocksHeld)) / (this.totalEmptyRate);
+            delta = (emptiedBlocks - Math.floor(this.blocksHeld)) / (Factory.EMPTY_RATE);
             Data.currentBlocks += Math.floor(this.blocksHeld);
             this.blocksHeld -= Math.floor(this.blocksHeld);
             this.emptying = false;
@@ -148,8 +155,8 @@ class Factory {
       return this.amountOwned * this.basePollutionRate * this.localPollutionMultiplier * globalPollutionMultiplier;
    }
 
-   get totalEmptyRate() {
-      return this.amountOwned * BASE_EMPTY_RATE * globalEmptyRateMultiplier;
+   static get EMPTY_RATE() {
+      return BASE_EMPTY_RATE * globalEmptyRateMultiplier;
    }
 
    get price() {
@@ -209,8 +216,11 @@ class Factory {
       // If this factory is owned...
       if (this.amountOwned > 0) {
          // ...declare 'full' if its capacity has been reached...
-         if (this.blocksHeld === this.totalCapacity) {
-            ctx2d.fillText('Full', textX, textY + toBrowserH(UI_SANS_TEXT_HEIGHT) * 1.15);
+         let fillStatusText;
+         if (this.queued && !this.emptying) {
+            fillStatusText = "Queued for emptying";
+         } else if (this.blocksHeld === this.totalCapacity) {
+            fillStatusText = 'Full';
             // ...or, display how much time it will take until it is full (if not emptying)
             // or empty (if emptying)
          } else {
@@ -218,7 +228,7 @@ class Factory {
             let timeLeft;
             if (this.emptying)
                // ...until empty
-               timeLeft = this.blocksHeld / this.totalEmptyRate;
+               timeLeft = this.blocksHeld / Factory.EMPTY_RATE;
             else
                // ... until full
                timeLeft = (this.totalCapacity - this.blocksHeld) / this.totalBlockRate;
@@ -249,9 +259,13 @@ class Factory {
                timeLeft = Math.ceil(timeLeft);
             }
 
-            ctx2d.fillText((this.emptying ? 'Empty in ' : 'Full in ') + timeLeft + ' ' + timeUnit, textX, textY + toBrowserH(UI_SANS_TEXT_HEIGHT) * 1.15);
+            fillStatusText = (this.emptying ? 'Empty in ' : 'Full in ') + timeLeft + ' ' + timeUnit;
          }
+         if (fillStatusText)
+            ctx2d.fillText(fillStatusText, textX, textY + toBrowserH(UI_SANS_TEXT_HEIGHT) * 1.15);
 
+         this.progressButton.colorFill = this.emptying ? COLOR_RED : (this.queued ? COLOR_ORANGE : COLOR_GREEN);
+         this.progressButton.colorEmpty = this.queued ? COLOR_DARK_ORANGE : COLOR_DARK_GREEN;
          this.progressButton.enabled = !this.emptying;
          this.progressButton.progress = this.blocksHeld / this.totalCapacity;
          this.progressButton.text = Math.floor(this.blocksHeld) + ' / ' + this.totalCapacity;
@@ -293,8 +307,24 @@ let factories = {
 };
 
 const factoriesLogic = delta => {
+   // figure out if some factory is emptying and queue factories accordingly
+   let someFactoryEmptying = false;
    for (let prop in factories) {
-      factories[prop].logic(delta);
+      let factory = factories[prop];
+
+      if (factory.emptying) {
+         someFactoryEmptying = true;
+         break;
+      }
+   }
+
+   for (let prop in factories) {
+      let factory = factories[prop];
+      if (!someFactoryEmptying && factory.queued && !factory.emptying) {
+         someFactoryEmptying = true;
+         factory.empty();
+      }
+      factory.logic(delta);
    }
 };
 
@@ -326,7 +356,7 @@ const renderFactoryMenu = (delta, gl, programInfo, ctx2d, yOffset) => {
    ctx2d.fillStyle = "black";
    ctx2d.textBaseline = "middle";
    ctx2d.textAlign = "center";
-   ctx2d.fillText((currentFactoryPage + 1) + " / " + (getMaxPage() + 1), toBrowserX(VISIBLE_WIDTH / 2), toBrowserY(getPageChangerButtonY() + nextPageButton.h / 2 + yOffset));
+   ctx2d.fillText((currentFactoryPage + 1) + " / " + (getMaxPage() + 1), toBrowserX(VISIBLE_WIDTH / 2), toBrowserY(getPageChangerButtonY() + PAGE_CHANGER_BUTTON_HEIGHT / 2 + yOffset));
 
    renderFactoryMenuScoreboard(gl, programInfo, ctx2d, yOffset);
 };
